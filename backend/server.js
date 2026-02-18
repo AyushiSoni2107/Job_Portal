@@ -1,44 +1,14 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
 const connectDB = require("./config/db");
-
-const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/UserRoutes");
-const jobRoutes = require("./routes/jobRoutes");
-const  applicationRoutes = require("./routes/applicationRoutes");
-const savedJobsRoutes = require("./routes/SavedJobsRoutes");
-const analyticsRoutes = require("./routes/analyticsRoutes");
-
-const app = express();
-
-//Middleware to handle CORS
-app.use(
-    cors({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
-
-//Connect Database
-connectDB();
-
-//Middleware
-app.use(express.json());
-
-//Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/jobs", jobRoutes);
-app.use("/api/applications", applicationRoutes);
-app.use("/api/save-jobs", savedJobsRoutes);
-app.use("/api/analytics", analyticsRoutes);
-
-//server uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
+const app = require("./app");
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("Error connecting to MongoDB", err);
+    process.exit(1);
+  });
