@@ -1,8 +1,12 @@
 const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const defaultProdApiBaseUrl = "https://job-portal-8l1g.vercel.app";
 
-// In production, default to same-origin so a single Vercel project works
-// with API routes mounted at /api. In local dev, keep localhost backend fallback.
-export const BASE_URL = envBaseUrl || (import.meta.env.PROD ? "" : "http://localhost:3000");
+// Priority:
+// 1) explicit env var
+// 2) production fallback backend URL (separate frontend/backend deployments)
+// 3) local backend URL in development
+export const BASE_URL =
+  envBaseUrl || (import.meta.env.PROD ? defaultProdApiBaseUrl : "http://localhost:3000");
 
 export const API_PATHS = {
     AUTH: {
