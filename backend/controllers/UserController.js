@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
 
+const uploadsDir = process.env.VERCEL
+    ? path.join('/tmp', 'uploads')
+    : path.join(__dirname, '..', 'uploads');
+
 // @desc    Update user profile (name, avatar, company details)
 exports.updateProfile = async (req, res) => {
     try {
@@ -55,7 +59,7 @@ exports.deleteResume = async (req, res) => {
             return res.status(403).json({ message: "Only jobseekers can delete resume" });
 
         // Construct the full file path
-        const filePath = path.join(__dirname, '../uploads', fileName);
+        const filePath = path.join(uploadsDir, fileName);
 
         // Check if the file exists and then delete
         if (fs.existsSync(filePath)) {

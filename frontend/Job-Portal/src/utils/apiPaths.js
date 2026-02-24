@@ -1,4 +1,8 @@
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+
+// In production, default to same-origin so a single Vercel project works
+// with API routes mounted at /api. In local dev, keep localhost backend fallback.
+export const BASE_URL = envBaseUrl || (import.meta.env.PROD ? "" : "http://localhost:3000");
 
 export const API_PATHS = {
     AUTH: {

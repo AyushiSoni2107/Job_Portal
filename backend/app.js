@@ -10,6 +10,9 @@ const savedJobsRoutes = require("./routes/SavedJobsRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const app = express();
+const uploadsDir = process.env.VERCEL
+  ? path.join("/tmp", "uploads")
+  : path.join(__dirname, "uploads");
 
 app.use(
   cors({
@@ -28,6 +31,6 @@ app.use("/api/applications", applicationRoutes);
 app.use("/api/save-jobs", savedJobsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
+app.use("/uploads", express.static(uploadsDir, {}));
 
 module.exports = app;
