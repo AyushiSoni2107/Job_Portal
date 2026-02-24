@@ -171,7 +171,7 @@ exports.updateJob = async (req, res) => {
     const updated = await job.save();
     res.json(updated);
   } catch (err) {
-    res.stattus(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -190,7 +190,7 @@ exports.deleteJob = async (req, res) => {
     await job.deleteOne();
     res.json({ message: "Job deleted successfully" });
   } catch (err) {
-    res.stattus(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
