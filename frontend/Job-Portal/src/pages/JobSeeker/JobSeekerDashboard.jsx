@@ -38,9 +38,15 @@ const JobSeekerDashboard = () => {
       if (isAuthenticated && user?._id && user?.role === "jobseeker") params.userId = user._id;
 
       const res = await axiosInstance.get(API_PATHS.JOBS.GET_ALL_JOBS, { params });
-      setJobs(res.data || []);
+      if (Array.isArray(res.data)) {
+        setJobs(res.data);
+      } else {
+        setJobs([]);
+        toast.error("Jobs API is not reachable. Check Vercel API deployment and VITE_API_BASE_URL.");
+      }
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to load jobs");
+      setJobs([]);
     } finally {
       setLoading(false);
     }
