@@ -106,6 +106,30 @@ const Header = () => {
             )}
           </div>
         </div>
+
+        {/* Mobile quick actions */}
+        <div className="md:hidden pb-3 flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => navigate("/find-jobs")}
+            className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            Browse Jobs
+          </button>
+          {(!isAuthenticated || user?.role === "employer") && (
+            <button
+              onClick={() => {
+                navigate(
+                  isAuthenticated && user?.role === "employer"
+                    ? "/employer-dashboard"
+                    : "/login",
+                );
+              }}
+              className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              For Employers
+            </button>
+          )}
+        </div>
       </div>
     </motion.header>
   );
