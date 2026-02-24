@@ -5,7 +5,7 @@ import { useAuth } from "../../../context/AuthContext";
 
 const Hero = () => {
   const { user, isAuthenticated } = useAuth();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const stats = [
     { icon: Users, label: "Active Users", value: "1,200+" },
@@ -14,8 +14,7 @@ const Hero = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-white via-blue-50 to-white">
-      {/* Content */}
+    <section className="min-h-screen">
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Heading */}
@@ -60,20 +59,22 @@ const Hero = () => {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-colors"
-              onClick={() =>
-                navigate(
-                  isAuthenticated && user?.role === "employer"
-                    ? "/employer-dashboard"
-                    : "/login",
-                )
-              }
-            >
-              Post a Job
-            </motion.button>
+            {(!isAuthenticated || user?.role === "employer") && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-colors"
+                onClick={() =>
+                  navigate(
+                    isAuthenticated && user?.role === "employer"
+                      ? "/employer-dashboard"
+                      : "/login",
+                  )
+                }
+              >
+                Post a Job
+              </motion.button>
+            )}
           </motion.div>
 
           {/* Stats Section */}
@@ -105,7 +106,7 @@ const Hero = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

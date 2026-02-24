@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import SignUp from "./pages/Auth/SignUp";
 import Login from "./pages/Auth/Login";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
 import JobSeekerDashboard from "./pages/JobSeeker/JobSeekerDashboard";
 import JobDetails from "./pages/JobSeeker/JobDetails";
 import SavedJobs from "./pages/JobSeeker/SavedJobs";
@@ -18,35 +19,60 @@ import JobPostingForm from "./pages/Employer/JobPostingForm";
 import ManageJobs from "./pages/Employer/ManageJobs";
 import ApplicationViewer from "./pages/Employer/ApplicationViewer";
 import EmployerProfilePage from "./pages/Employer/EmployerProfilePage";
+import EditProfileDetails from "./pages/Employer/EditProfileDetails";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
+      <div className="relative min-h-screen bg-white overflow-x-hidden">
+        <div
+          className="fixed inset-0 pointer-events-none z-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(248,250,252,0.95) 0%, rgba(241,245,249,0.8) 100%)",
+          }}
+        />
 
-        {/* Protected Routes for Job Seekers */}
-        <Route path="/find-jobs" element={<JobSeekerDashboard />} />
-        <Route path="/job/:id" element={<JobDetails />} />
-        <Route path="/saved-jobs" element={<SavedJobs />} />
-        <Route path="/profile" element={<UserProfile />} />
+        <div
+          className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
 
-        {/* Protected Routes for Employers */}
-        <Route element={<ProtectedRoute requiredRole="employer" />}>
-          <Route path="/employer-dashboard" element={<EmployerDashboard />} />
-          <Route path="/post-job" element={<JobPostingForm />} />
-          <Route path="/manage-jobs" element={<ManageJobs />} />
-          <Route path="/applicants" element={<ApplicationViewer />} />
-          <Route path="/company-profile" element={<EmployerProfilePage />} />
-        </Route>
+        <div className="relative z-10">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ForgotPassword />} />
 
-        {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            {/* Protected Routes for Job Seekers */}
+            <Route path="/find-jobs" element={<JobSeekerDashboard />} />
+            <Route path="/job/:id" element={<JobDetails />} />
+            <Route path="/saved-jobs" element={<SavedJobs />} />
+            <Route path="/profile" element={<UserProfile />} />
+
+            {/* Protected Routes for Employers */}
+            <Route element={<ProtectedRoute requiredRole="employer" />}>
+              <Route path="/employer-dashboard" element={<EmployerDashboard />} />
+              <Route path="/post-job" element={<JobPostingForm />} />
+              <Route path="/manage-jobs" element={<ManageJobs />} />
+              <Route path="/applicants" element={<ApplicationViewer />} />
+              <Route path="/company-profile" element={<EmployerProfilePage />} />
+              <Route path="/company-profile/edit" element={<EditProfileDetails />} />
+            </Route>
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
 
       <Toaster
         toastOptions={{

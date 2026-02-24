@@ -148,10 +148,7 @@ const SignUp = () => {
         login(response.data, token);
 
         setTimeout(() => {
-          window.location.href =
-            formData.role === "employer"
-              ? "/employer-dashboard"
-              : "/find-jobs";
+          window.location.href = "/";
         }, 2000);
       }
     } catch (error) {
@@ -255,7 +252,7 @@ const SignUp = () => {
                 <input
                   type="file"
                   id="avatar"
-                  accept=".jpg,.jpeg,.png"
+                  accept=".jpg,.jpeg,.png,.webp"
                   onChange={handleAvatarChange}
                   className="hidden"
                 />
@@ -266,7 +263,7 @@ const SignUp = () => {
                   <Upload className="w-4 h-4" />
                   <span>Upload Image</span>
                 </label>
-                <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
+                <p className="text-xs text-gray-500 mt-1">JPG, PNG, WEBP up to 5MB</p>
               </div>
             </div>
             {formState.errors.avatar && (

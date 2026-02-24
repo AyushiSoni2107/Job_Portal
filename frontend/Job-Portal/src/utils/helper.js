@@ -26,10 +26,10 @@ export const validatePassword = (password) => {
 export const validateAvatar = (file) => {
   if (!file) return ""; // Avatar is optional
 
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
   if (!allowedTypes.includes(file.type)) {
-    return "Avatar must be a JPG or PNG image";
+    return "Avatar must be a JPG, PNG, or WEBP image";
   }
 
   const maxSize = 5 * 1024 * 1024; //5mb

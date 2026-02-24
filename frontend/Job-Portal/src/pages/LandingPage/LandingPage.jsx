@@ -8,7 +8,7 @@ import Footer from "./components/Footer";
 const LandingPage = () => {
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative bg-white overflow-hidden"
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -43,7 +43,7 @@ const LandingPage = () => {
         <Analytics />
         <Footer />
       </div>
-    </div>
+      </div>
   );
 };
 export default LandingPage;

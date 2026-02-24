@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Mail,
   Lock,
@@ -93,23 +93,14 @@ const Login = () => {
         error: {},
       }));
 
-      const { token, role } = response.data;
+      const { token } = response.data;
 
       if (token) {
         login(response.data, token);
       }
 
-      // Redirect based on role
-      // setTimeout(() => {
-      //   window.location.href =
-      //     role === "employer" ? "/employer-dashboard" : "/find-jobs";
-      // }, 2000);
-
-      // Redirect based on user role
       setTimeout(() => {
-        const redirectPath =
-          role === "employer" ? "/employer-dashboard" : "/find-jobs";
-        navigate(redirectPath, { replace: true });
+        navigate("/", { replace: true });
       }, 1500);
 
     } catch (err) {
@@ -266,6 +257,11 @@ const Login = () => {
                   {formState.error.password}
                 </p>
               )}
+              <div className="text-right mt-2">
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             {/* Submit Error */}

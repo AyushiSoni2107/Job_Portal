@@ -14,6 +14,9 @@ const userSchema = new mongoose.Schema(
     companyName: String,
     companyDescription: String,
     companyLogo: String,
+
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   { timestamps: true }
 );

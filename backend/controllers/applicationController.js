@@ -95,9 +95,15 @@ exports.getApplicationById = async (req, res) => {
 exports.updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    const allowedStatuses = ["Applied", "Accepted", "In Review", "Rejected"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
     const app = await Application.findById(req.params.id).populate("job");
 
-    if (!app || app.job.company.toString() !== req.user_id.toString()) {
+    if (!app || !app.job || app.job.company.toString() !== req.user._id.toString()) {
       return res
         .status(403)
         .json({ message: "Not authorized to update this application" });
