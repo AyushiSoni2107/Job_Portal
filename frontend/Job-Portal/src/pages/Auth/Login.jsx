@@ -94,13 +94,15 @@ const Login = () => {
       }));
 
       const { token } = response.data;
+      const targetPath =
+        response?.data?.role === "employer" ? "/employer-dashboard" : "/find-jobs";
 
       if (token) {
         login(response.data, token);
       }
 
       setTimeout(() => {
-        navigate("/", { replace: true });
+        navigate(targetPath, { replace: true });
       }, 1500);
 
     } catch (err) {

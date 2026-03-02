@@ -1,16 +1,52 @@
 import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { Search, ArrowRight, Users, Building2, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import axiosInstance from "../../../utils/axiosInstance";
+import { API_PATHS } from "../../../utils/apiPaths";
 
 const Hero = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [statsData, setStatsData] = useState({
+    activeUsers: 0,
+    companies: 0,
+    jobsPosted: 0,
+    successfulHires: 0,
+  });
+
+  useEffect(() => {
+    const fetchPublicStats = async () => {
+      try {
+        const res = await axiosInstance.get(API_PATHS.DASHBOARD.PUBLIC_STATS);
+        setStatsData({
+          activeUsers: Number(res?.data?.activeUsers || 0),
+          companies: Number(res?.data?.companies || 0),
+          jobsPosted: Number(res?.data?.jobsPosted || 0),
+          successfulHires: Number(res?.data?.successfulHires || 0),
+        });
+      } catch {
+        // Keep zeros if endpoint is unavailable.
+      }
+    };
+
+    fetchPublicStats();
+  }, []);
+
+  const formatCompact = useMemo(
+    () => (value) =>
+      new Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(value),
+    []
+  );
 
   const stats = [
-    { icon: Users, label: "Active Users", value: "1,200+" },
-    { icon: Building2, label: "Companies", value: "300+" },
-    { icon: TrendingUp, label: "Jobs Posted", value: "5,000+" },
+    { icon: Users, label: "Active Users", value: formatCompact(statsData.activeUsers) },
+    { icon: Building2, label: "Companies", value: formatCompact(statsData.companies) },
+    { icon: TrendingUp, label: "Jobs Posted", value: formatCompact(statsData.jobsPosted) },
   ];
 
   return (

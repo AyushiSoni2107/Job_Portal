@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import JobCard from "../../components/JobCard";
 import FilterContent from "../../components/FilterContent";
 import SearchHeader from "../../components/SearchHeader";
+import Header from "../LandingPage/components/Header";
 
 const JobSeekerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
@@ -100,6 +101,8 @@ const JobSeekerDashboard = () => {
 
   return (
     <div className="min-h-screen">
+      <Header hidePrimaryLinks />
+      <div className="h-16" />
       <SearchHeader
         title="JobSeeker Dashboard Page"
         subtitle="Browse jobs publicly, then save/apply faster after login."

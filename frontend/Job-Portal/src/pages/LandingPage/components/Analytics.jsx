@@ -1,7 +1,44 @@
-import { color, motion } from "framer-motion";
-import { TrendingUp, Users, Briefcase, Target } from "lucide-react";
+import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { Users, Briefcase, Target, Building2 } from "lucide-react";
+import axiosInstance from "../../../utils/axiosInstance";
+import { API_PATHS } from "../../../utils/apiPaths";
 
 const Analytics = () => {
+  const [statsData, setStatsData] = useState({
+    activeUsers: 0,
+    companies: 0,
+    jobsPosted: 0,
+    successfulHires: 0,
+  });
+
+  useEffect(() => {
+    const fetchPublicStats = async () => {
+      try {
+        const res = await axiosInstance.get(API_PATHS.DASHBOARD.PUBLIC_STATS);
+        setStatsData({
+          activeUsers: Number(res?.data?.activeUsers || 0),
+          companies: Number(res?.data?.companies || 0),
+          jobsPosted: Number(res?.data?.jobsPosted || 0),
+          successfulHires: Number(res?.data?.successfulHires || 0),
+        });
+      } catch {
+        // Keep default zero values if API is unavailable.
+      }
+    };
+
+    fetchPublicStats();
+  }, []);
+
+  const formatCompact = useMemo(
+    () => (value) =>
+      new Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(value),
+    []
+  );
+
   const colorClasses = {
     blue: "bg-blue-100",
     purple: "bg-purple-100",
@@ -20,29 +57,29 @@ const Analytics = () => {
     {
       icon: Users,
       title: "Active Users",
-      value: "1,200+",
-      growth: "+15%",
+      value: formatCompact(statsData.activeUsers),
+      growth: "Live",
       color: "blue",
     },
     {
       icon: Briefcase,
       title: "Jobs Posted",
-      value: "5,000+",
-      growth: "+20%",
+      value: formatCompact(statsData.jobsPosted),
+      growth: "Live",
       color: "purple",
     },
     {
       icon: Target,
       title: "Successful Hires",
-      value: "3,500+",
-      growth: "+25%",
+      value: formatCompact(statsData.successfulHires),
+      growth: "Live",
       color: "green",
     },
     {
-      icon: TrendingUp,
-      title: "Revenue Growth",
-      value: "$1M+",
-      growth: "+30%",
+      icon: Building2,
+      title: "Companies",
+      value: formatCompact(statsData.companies),
+      growth: "Live",
       color: "orange",
     },
   ];

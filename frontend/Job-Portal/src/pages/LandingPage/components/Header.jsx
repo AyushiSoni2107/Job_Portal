@@ -1,17 +1,27 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Briefcase, UserCircle2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { resolveMediaUrl } from "../../../utils/mediaUrl";
 
-const Header = () => {
+const Header = ({ hidePrimaryLinks = false }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleProfileClick = () => {
     if (!isAuthenticated || !user) return;
     navigate(user.role === "employer" ? "/employer-dashboard" : "/find-jobs");
+  };
+
+  const handleLogoClick = () => {
+    if (location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    navigate("/");
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   return (
@@ -23,36 +33,42 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
-          <div className="flex items-center space-x-3">
+          <button
+            type="button"
+            onClick={handleLogoClick}
+            className="flex items-center space-x-3 cursor-pointer"
+          >
             <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-10 h-10 flex items-center justify-center text-blue-50">
               <Briefcase size={28} />
             </div>
             <span className="text-2xl font-bold text-gray-800">DevHire</span>
-          </div>
+          </button>
 
           {/* Navigation Links - hidden on mobile*/}
-          <nav className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => navigate("/find-jobs")}
-              className="text-gray-700 hover:text-blue-500 transition-colors font-medium"
-            >
-              Browse Jobs
-            </button>
-            {(!isAuthenticated || user?.role === "employer") && (
+          {!hidePrimaryLinks && (
+            <nav className="hidden md:flex items-center space-x-8">
               <button
-                onClick={() => {
-                  navigate(
-                    isAuthenticated && user?.role === "employer"
-                      ? "/employer-dashboard"
-                      : "/login",
-                  );
-                }}
+                onClick={() => navigate("/find-jobs")}
                 className="text-gray-700 hover:text-blue-500 transition-colors font-medium"
               >
-                For Employers
+                Browse Jobs
               </button>
-            )}
-          </nav>
+              {(!isAuthenticated || user?.role === "employer") && (
+                <button
+                  onClick={() => {
+                    navigate(
+                      isAuthenticated && user?.role === "employer"
+                        ? "/employer-dashboard"
+                        : "/login",
+                    );
+                  }}
+                  className="text-gray-700 hover:text-blue-500 transition-colors font-medium"
+                >
+                  For Employers
+                </button>
+              )}
+            </nav>
+          )}
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-3">
@@ -107,29 +123,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile quick actions */}
-        <div className="md:hidden pb-3 flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => navigate("/find-jobs")}
-            className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            Browse Jobs
-          </button>
-          {(!isAuthenticated || user?.role === "employer") && (
-            <button
-              onClick={() => {
-                navigate(
-                  isAuthenticated && user?.role === "employer"
-                    ? "/employer-dashboard"
-                    : "/login",
-                );
-              }}
-              className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              For Employers
-            </button>
-          )}
-        </div>
+        {/* Mobile quick actions intentionally hidden */}
       </div>
     </motion.header>
   );

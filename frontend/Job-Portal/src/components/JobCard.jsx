@@ -43,6 +43,19 @@ const formatSalary = (amount, currency = "INR") => {
   }).format(value);
 };
 
+const formatCategories = (categoryValue) => {
+  if (Array.isArray(categoryValue)) {
+    const values = categoryValue.filter(Boolean);
+    return values.length > 0 ? values.join(", ") : "General";
+  }
+
+  if (typeof categoryValue === "string" && categoryValue.trim()) {
+    return categoryValue;
+  }
+
+  return "General";
+};
+
 const JobCard = ({
   job,
   showSaveControl = false,
@@ -96,7 +109,7 @@ const JobCard = ({
         </span>
         <span className="inline-flex items-center gap-1">
           <Briefcase className="w-4 h-4" />
-          {job.category || "General"}
+          {formatCategories(job.category)}
         </span>
         <span className="inline-flex items-center gap-1">
           <CircleDollarSign className="w-4 h-4" />

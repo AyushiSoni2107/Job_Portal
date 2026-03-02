@@ -216,7 +216,7 @@ const SignUp = () => {
             "radial-gradient(800px circle at var(--x, 100%) var(--y, 100%), rgba(99,102,241,0.16), transparent 60%)",
         }}
       />
-    <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
+    <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

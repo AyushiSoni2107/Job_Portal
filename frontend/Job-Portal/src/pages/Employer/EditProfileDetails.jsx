@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Briefcase, ClipboardList, Users, Building2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Briefcase,
+  ClipboardList,
+  Building2,
+  LogOut,
+  LayoutDashboard,
+  Plus,
+  UserCircle2,
+  X,
+  Save,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useAuth } from "../../context/AuthContext";
@@ -10,7 +20,7 @@ import uploadImage from "../../utils/uploadImage";
 import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 const EditProfileDetails = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -62,122 +72,230 @@ const EditProfileDetails = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold text-slate-900">Edit Employer Profile Page</h1>
-          <p className="text-sm text-slate-500">Update company and employer details.</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#f2f4f7] text-slate-900 m-0 p-0">
+      <div className="w-full min-h-screen lg:grid lg:grid-cols-[220px_1fr] m-0 p-0">
+        <aside className="hidden lg:flex flex-col border-r border-slate-200 bg-blue-50 min-h-screen">
+          <div className="h-16 px-4 flex items-center border-b border-slate-200">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-10 h-10 flex items-center justify-center text-blue-50">
+                <Briefcase className="w-6 h-6" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 leading-none">DevHire</span>
+            </Link>
+          </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
-        <aside className="bg-white border border-slate-200 rounded-xl p-3 h-fit">
-          <nav className="space-y-1">
+          <nav className="px-3 pt-4 space-y-1.5">
             <Link
               to="/employer-dashboard"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
             >
-              <Briefcase className="w-4 h-4" />
+              <LayoutDashboard className="w-4 h-4" />
               Dashboard
             </Link>
             <Link
               to="/post-job"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
             >
-              <ClipboardList className="w-4 h-4" />
-              Create Job Posting
+              <Plus className="w-4 h-4" />
+              Post Job
             </Link>
             <Link
-              to="/applicants"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              to="/manage-jobs"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
             >
-              <Users className="w-4 h-4" />
-              View Applications
+              <ClipboardList className="w-4 h-4" />
+              Manage Jobs
             </Link>
             <Link
               to="/company-profile"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-blue-600 text-white border-r-4 border-blue-700 text-sm font-medium"
             >
               <Building2 className="w-4 h-4" />
-              Profile Details
+              Company Profile
             </Link>
           </nav>
+
+          <div className="mt-auto p-3 border-t border-slate-200">
+            <button
+              onClick={logout}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
         </aside>
 
-        <main>
-          <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
-            <div>
-              <label className="text-sm font-medium text-slate-700">Employer Name</label>
-              <input
-                value={formData.name}
-                onChange={(e) => setField("name", e.target.value)}
-                className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
-              />
+        <main className="min-w-0">
+          <header className="h-16 px-4 md:px-5 border-b border-slate-200 bg-blue-50 flex items-center justify-between">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-xl leading-tight font-bold">Company Profile</h1>
+              <p className="text-xs md:text-sm text-slate-500 mt-1">
+                View and manage your employer and company details
+              </p>
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-slate-700">Company Name</label>
-              <input
-                value={formData.companyName}
-                onChange={(e) => setField("companyName", e.target.value)}
-                className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-slate-700">Company Description</label>
-              <textarea
-                value={formData.companyDescription}
-                onChange={(e) => setField("companyDescription", e.target.value)}
-                className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 min-h-32"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700">Avatar</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload("avatar", e.target.files?.[0])}
-                  className="mt-1 w-full text-sm"
-                />
-                {formData.avatar && (
-                  <img src={resolveMediaUrl(formData.avatar)} alt="Avatar" className="mt-2 h-16 w-16 rounded-full object-cover" />
-                )}
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-slate-700">Company Logo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload("companyLogo", e.target.files?.[0])}
-                  className="mt-1 w-full text-sm"
-                />
-                {formData.companyLogo && (
-                  <img src={resolveMediaUrl(formData.companyLogo)} alt="Logo" className="mt-2 h-16 w-16 rounded-lg object-cover" />
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => navigate("/company-profile")}
-                className="px-4 py-2 rounded-lg border border-slate-300"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
               >
-                Cancel
+                {user?.avatar ? (
+                  <img
+                    src={resolveMediaUrl(user.avatar)}
+                    alt={user.name || "Employer"}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <UserCircle2 className="w-8 h-8 text-blue-600" />
+                )}
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-semibold text-slate-800 leading-none">
+                    {user?.name || "Employer"}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">Employer Profile</p>
+                </div>
               </button>
+
               <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                onClick={logout}
+                className="px-3 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-700"
               >
-                {loading ? "Saving..." : "Save Profile"}
+                Logout
               </button>
             </div>
+          </header>
+
+          <section className="p-4 md:p-5 flex justify-center">
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-4xl bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm"
+          >
+            <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-4">
+              <h1 className="text-2xl font-semibold text-white">Edit Profile</h1>
+            </div>
+
+            <div className="p-5 md:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <section>
+                  <h2 className="text-2xl font-semibold text-slate-900 pb-3 border-b border-slate-300">
+                    Personal Information
+                  </h2>
+
+                  <div className="mt-4 flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                      {formData.avatar ? (
+                        <img
+                          src={resolveMediaUrl(formData.avatar)}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <UserCircle2 className="w-10 h-10 text-slate-400" />
+                      )}
+                    </div>
+                    <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm cursor-pointer hover:bg-blue-200">
+                      <span>Choose file</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload("avatar", e.target.files?.[0])}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Full Name</label>
+                      <input
+                        value={formData.name}
+                        onChange={(e) => setField("name", e.target.value)}
+                        className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Email Address</label>
+                      <input
+                        value={user?.email || ""}
+                        disabled
+                        className="mt-1 w-full border border-slate-300 bg-slate-100 rounded-lg px-3 py-2 text-slate-600"
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <h2 className="text-2xl font-semibold text-slate-900 pb-3 border-b border-slate-300">
+                    Company Information
+                  </h2>
+
+                  <div className="mt-4 flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                      {formData.companyLogo ? (
+                        <img
+                          src={resolveMediaUrl(formData.companyLogo)}
+                          alt="Company Logo"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Building2 className="w-8 h-8 text-slate-400" />
+                      )}
+                    </div>
+                    <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-sm cursor-pointer hover:bg-emerald-200">
+                      <span>Choose file</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload("companyLogo", e.target.files?.[0])}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Company Name</label>
+                      <input
+                        value={formData.companyName}
+                        onChange={(e) => setField("companyName", e.target.value)}
+                        className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">Company Description</label>
+                      <textarea
+                        value={formData.companyDescription}
+                        onChange={(e) => setField("companyDescription", e.target.value)}
+                        className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 min-h-28"
+                      />
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-300 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate("/company-profile")}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
           </form>
+          </section>
         </main>
       </div>
     </div>
@@ -185,3 +303,4 @@ const EditProfileDetails = () => {
 };
 
 export default EditProfileDetails;
+

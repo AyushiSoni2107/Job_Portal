@@ -13,6 +13,12 @@ const JobPostingPreview = ({ values }) => {
   const salaryMin = formatCurrency(values?.salaryMin, currency);
   const salaryMax = formatCurrency(values?.salaryMax, currency);
   const companyName = values?.companyName?.trim() || "Your Company";
+  const categories = Array.isArray(values?.category)
+    ? values.category.filter(Boolean)
+    : String(values?.category || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
 
   return (
     <section className="bg-white border border-slate-200 rounded-2xl p-5 h-fit sticky top-4">
@@ -37,7 +43,7 @@ const JobPostingPreview = ({ values }) => {
               {values?.location?.trim() || "Location"}
             </span>
             <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-              {values?.category?.trim() || "General"}
+              {categories.length > 0 ? categories.join(", ") : "General"}
             </span>
             <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">{currency}</span>
           </div>

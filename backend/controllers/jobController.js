@@ -3,6 +3,25 @@ const User = require("../models/User");
 const Application = require("../models/Application");
 const SavedJob = require("../models/SavedJob");
 
+const normalizeCategories = (value) => {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
 // @desc    Create a new job (Employer only)
 exports.createJob = async (req, res) => {
   try {
@@ -10,7 +29,14 @@ exports.createJob = async (req, res) => {
       return res.status(403).json({ message: "Only employers can post jobs" });
     }
 
-    const job = await Job.create({ ...req.body, company: req.user._id });
+    const categories = normalizeCategories(req.body.category || req.body.categories);
+    const payload = {
+      ...req.body,
+      company: req.user._id,
+      category: categories,
+    };
+
+    const job = await Job.create(payload);
     res.status(201).json(job);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -20,12 +46,13 @@ exports.createJob = async (req, res) => {
 exports.getJobs = async (req, res) => {
   const { keyword, location, category, type, minSalary, maxSalary, userId } =
     req.query;
+  const categories = normalizeCategories(category);
 
   const query = {
     isClosed: false,
     ...(keyword && { title: { $regex: keyword, $options: "i" } }),
     ...(location && { location: { $regex: location, $options: "i" } }),
-    ...(category && { category }),
+    ...(categories.length > 0 && { category: { $in: categories } }),
     ...(type && { type }),
   };
 
@@ -168,6 +195,12 @@ exports.updateJob = async (req, res) => {
     }
 
     Object.assign(job, req.body);
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "category") ||
+      Object.prototype.hasOwnProperty.call(req.body, "categories")) {
+      job.category = normalizeCategories(req.body.category || req.body.categories);
+    }
+
     const updated = await job.save();
     res.json(updated);
   } catch (err) {

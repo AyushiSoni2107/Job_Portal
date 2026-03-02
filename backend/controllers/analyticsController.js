@@ -1,5 +1,6 @@
 const Job = require("../models/Job");
 const Application = require("../models/Application");
+const User = require("../models/User");
 
 const getTrend = (current, previous) => {
   if (previous === 0) return current > 0 ? 100 : 0;
@@ -111,5 +112,25 @@ exports.getEmployerAnalytics = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch analytics", error: err.message });
+  }
+};
+
+exports.getPublicStats = async (_req, res) => {
+  try {
+    const [activeUsers, companies, jobsPosted, successfulHires] = await Promise.all([
+      User.countDocuments({}),
+      User.countDocuments({ role: "employer" }),
+      Job.countDocuments({}),
+      Application.countDocuments({ status: "Accepted" }),
+    ]);
+
+    res.json({
+      activeUsers,
+      companies,
+      jobsPosted,
+      successfulHires,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch public stats", error: err.message });
   }
 };

@@ -18,6 +18,17 @@ const formatSalary = (amount, currency = "INR") => {
   }).format(value);
 };
 
+const formatCategories = (categoryValue) => {
+  if (Array.isArray(categoryValue)) {
+    const values = categoryValue.filter(Boolean);
+    return values.length > 0 ? values.join(", ") : "General";
+  }
+  if (typeof categoryValue === "string" && categoryValue.trim()) {
+    return categoryValue;
+  }
+  return "General";
+};
+
 const JobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -156,7 +167,7 @@ const JobDetails = () => {
 
           <div className="mt-6">
             <h2 className="text-lg font-semibold text-slate-900">Category</h2>
-            <p className="text-slate-700 mt-2">{job.category || "General"}</p>
+            <p className="text-slate-700 mt-2">{formatCategories(job.category)}</p>
           </div>
         </section>
 

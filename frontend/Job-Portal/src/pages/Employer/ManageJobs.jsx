@@ -1,15 +1,34 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Briefcase, ClipboardList, Users, Building2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Briefcase,
+  ClipboardList,
+  Building2,
+  LogOut,
+  LayoutDashboard,
+  Plus,
+  UserCircle2,
+  Search,
+  Users,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
+import { useAuth } from "../../context/AuthContext";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 const ManageJobs = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -26,6 +45,23 @@ const ManageJobs = () => {
   useEffect(() => {
     fetchJobs();
   }, []);
+
+  const filteredJobs = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return jobs.filter((job) => {
+      const matchesQuery =
+        !q ||
+        (job.title || "").toLowerCase().includes(q) ||
+        (job.location || "").toLowerCase().includes(q);
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" && !job.isClosed) ||
+        (statusFilter === "closed" && job.isClosed);
+
+      return matchesQuery && matchesStatus;
+    });
+  }, [jobs, searchQuery, statusFilter]);
 
   const handleDelete = async (job) => {
     if (!window.confirm(`Delete "${job.title}"?`)) return;
@@ -72,99 +108,229 @@ const ManageJobs = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold text-slate-900">Manage Jobs Page</h1>
-          <p className="text-sm text-slate-500">Edit, close, reopen, or delete posted jobs.</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#f2f4f7] text-slate-900 m-0 p-0">
+      <div className="w-full min-h-screen lg:grid lg:grid-cols-[220px_1fr] m-0 p-0">
+        <aside className="hidden lg:flex flex-col border-r border-slate-200 bg-blue-50 min-h-screen">
+          <div className="h-16 px-4 flex items-center border-b border-slate-200">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-10 h-10 flex items-center justify-center text-blue-50">
+                <Briefcase className="w-6 h-6" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 leading-none">DevHire</span>
+            </Link>
+          </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
-        <aside className="bg-white border border-slate-200 rounded-xl p-3 h-fit">
-          <nav className="space-y-1">
+          <nav className="px-3 pt-4 space-y-1.5">
             <Link
               to="/employer-dashboard"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
             >
-              <Briefcase className="w-4 h-4" />
+              <LayoutDashboard className="w-4 h-4" />
               Dashboard
             </Link>
             <Link
               to="/post-job"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
             >
-              <ClipboardList className="w-4 h-4" />
-              Create Job Posting
+              <Plus className="w-4 h-4" />
+              Post Job
             </Link>
             <Link
-              to="/applicants"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              to="/manage-jobs"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-blue-600 text-white border-r-4 border-blue-700 text-sm font-medium"
             >
-              <Users className="w-4 h-4" />
-              View Applications
+              <ClipboardList className="w-4 h-4" />
+              Manage Jobs
             </Link>
             <Link
               to="/company-profile"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
             >
               <Building2 className="w-4 h-4" />
-              Employer Profile
+              Company Profile
             </Link>
           </nav>
+
+          <div className="mt-auto p-3 border-t border-slate-200">
+            <button
+              onClick={logout}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
         </aside>
 
-        <main>
-          {loading ? (
-            <div className="bg-white border border-slate-200 rounded-xl p-5">Loading jobs...</div>
-          ) : jobs.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-xl p-5">No jobs posted yet.</div>
-          ) : (
-            <div className="space-y-4">
-              {jobs.map((job) => (
-                <div key={job._id} className="bg-white border border-slate-200 rounded-xl p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <h3 className="font-semibold text-slate-900">{job.title}</h3>
-                      <p className="text-sm text-slate-600 mt-1 line-clamp-2">{job.description}</p>
-                    </div>
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        job.isClosed ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
-                      }`}
-                    >
-                      {job.isClosed ? "Closed" : "Open"}
-                    </span>
-                  </div>
+        <main className="min-w-0">
+          <header className="h-16 px-4 md:px-5 border-b border-slate-200 bg-blue-50 flex items-center justify-between">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-xl leading-tight font-bold">Job Management</h1>
+              <p className="text-xs md:text-sm text-slate-500 mt-1">
+                Manage your job postings and track applications
+              </p>
+            </div>
 
-                  <p className="text-sm text-slate-600 mt-3">
-                    {job.type} | {job.location || "N/A"} | {(job.currency || "INR")} {job.salaryMin || 0} - {job.salaryMax || 0} | Applicants: {job.applicationCount || 0}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => navigate("/company-profile")}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+              >
+                {user?.avatar ? (
+                  <img
+                    src={resolveMediaUrl(user.avatar)}
+                    alt={user.name || "Employer"}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <UserCircle2 className="w-8 h-8 text-blue-600" />
+                )}
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-semibold text-slate-800 leading-none">
+                    {user?.name || "Employer"}
                   </p>
+                  <p className="text-xs text-slate-500 mt-1">Employer Profile</p>
+                </div>
+              </button>
 
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setEditingJob(job)}
-                      className="px-3 py-1.5 rounded-lg border border-slate-300 text-sm"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleToggleClose(job)}
-                      className="px-3 py-1.5 rounded-lg border border-slate-300 text-sm"
-                    >
-                      {job.isClosed ? "Reopen" : "Close"}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(job)}
-                      className="px-3 py-1.5 rounded-lg bg-rose-600 text-white text-sm"
-                    >
-                      Delete
-                    </button>
+              <button
+                onClick={logout}
+                className="px-3 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-700"
+              >
+                Logout
+              </button>
+            </div>
+          </header>
+
+          <section className="p-4 md:p-5">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex-1 min-w-[220px]">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search jobs..."
+                      className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm"
+                    />
                   </div>
                 </div>
-              ))}
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="border border-slate-300 rounded-lg px-3 py-2 text-sm min-w-[140px]"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="closed">Closed</option>
+                </select>
+
+                <button
+                  onClick={() => navigate("/post-job")}
+                  className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add New Job
+                </button>
+              </div>
+
+              <p className="text-sm text-slate-500 mt-4">
+                Showing {filteredJobs.length} of {jobs.length} jobs
+              </p>
+
+              <div className="mt-4 overflow-x-auto border border-slate-200 rounded-xl">
+                <table className="w-full min-w-[760px]">
+                  <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                    <tr>
+                      <th className="text-left px-4 py-3">Job Title</th>
+                      <th className="text-left px-4 py-3">Status</th>
+                      <th className="text-left px-4 py-3">Applicants</th>
+                      <th className="text-left px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-6 text-sm text-slate-500">
+                          Loading jobs...
+                        </td>
+                      </tr>
+                    ) : filteredJobs.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-6 text-sm text-slate-500">
+                          No jobs found.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredJobs.map((job) => (
+                        <tr key={job._id} className="text-sm">
+                          <td className="px-4 py-4">
+                            <p className="font-semibold text-slate-900">{job.title}</p>
+                            <p className="text-slate-500 text-xs mt-0.5">
+                              {job.company?.name || user?.name || "Employer"}
+                            </p>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`text-xs px-2.5 py-1 rounded-full ${
+                                job.isClosed
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-emerald-100 text-emerald-700"
+                              }`}
+                            >
+                              {job.isClosed ? "Closed" : "Active"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-blue-600 font-medium">
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/applicants?jobId=${job._id}`)}
+                              className="inline-flex items-center gap-1.5 hover:text-blue-800 hover:underline"
+                            >
+                              <Users className="w-4 h-4" />
+                              {job.applicationCount || 0}
+                            </button>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="inline-flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => setEditingJob(job)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleClose(job)}
+                                className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900"
+                                title={job.isClosed ? "Reopen" : "Close"}
+                              >
+                                <X className="w-4 h-4" />
+                                <span className="text-xs">{job.isClosed ? "Reopen" : "Close"}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(job)}
+                                className="text-rose-600 hover:text-rose-800"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
+          </section>
         </main>
       </div>
 
@@ -198,10 +364,10 @@ const ManageJobs = () => {
                 placeholder="Location"
               />
               <input
-                value={editingJob.category || ""}
+                value={Array.isArray(editingJob.category) ? editingJob.category.join(", ") : (editingJob.category || "")}
                 onChange={(e) => setEditingJob((prev) => ({ ...prev, category: e.target.value }))}
                 className="border border-slate-300 rounded-lg px-3 py-2"
-                placeholder="Category"
+                placeholder="Categories (comma separated)"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -262,3 +428,4 @@ const ManageJobs = () => {
 };
 
 export default ManageJobs;
+
