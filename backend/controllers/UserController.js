@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const mongoose = require("mongoose");
 const User = require('../models/User');
 
 const uploadsDir = process.env.VERCEL
@@ -54,6 +55,40 @@ exports.deleteResume = async (req, res) => {
 
         if(user.role !== "jobseeker")
             return res.status(403).json({ message: "Only jobseekers can delete resume" });
+
+        // Delete GridFS file when resume URL stores /api/auth/file/:id (or raw ObjectId).
+        const extractFileId = (value) => {
+            if (!value || typeof value !== "string") return null;
+            const trimmed = value.trim();
+            if (!trimmed) return null;
+
+            if (mongoose.Types.ObjectId.isValid(trimmed)) {
+                return trimmed;
+            }
+
+            try {
+                const parsed = new URL(trimmed);
+                const parts = parsed.pathname.split("/").filter(Boolean);
+                const maybeId = parts[parts.length - 1];
+                return mongoose.Types.ObjectId.isValid(maybeId) ? maybeId : null;
+            } catch {
+                const parts = trimmed.split("/").filter(Boolean);
+                const maybeId = parts[parts.length - 1];
+                return mongoose.Types.ObjectId.isValid(maybeId) ? maybeId : null;
+            }
+        };
+
+        const fileId = extractFileId(resumeUrl);
+        if (fileId) {
+            try {
+                const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+                    bucketName: "uploads",
+                });
+                await bucket.delete(new mongoose.Types.ObjectId(fileId));
+            } catch {
+                // Ignore missing files; user profile cleanup should still continue.
+            }
+        }
 
         // Backward compatibility: remove only legacy local files under /uploads.
         if (typeof resumeUrl === "string" && resumeUrl.includes("/uploads/")) {

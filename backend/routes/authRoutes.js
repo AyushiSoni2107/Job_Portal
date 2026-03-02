@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const mongoose = require("mongoose");
 const {
   register,
   login,
@@ -10,17 +11,14 @@ const {
 } = require("../controllers/authController");
 const { protect } = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/uploadMiddleware");
-const { uploadToCloudinary } = require("../utils/cloudinaryUpload");
 
 const router = express.Router();
 const localUploadDir = path.join(__dirname, "..", "uploads");
 
-const hasCloudinaryConfig = () =>
-  Boolean(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET,
-  );
+const getUploadsBucket = () =>
+  new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: "uploads" });
+
+const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
 
 router.post("/register", register);
 router.post("/login", login);
@@ -34,14 +32,27 @@ router.post("/upload-image", upload.single("image"), async (req, res) => {
   }
 
   try {
-    if (!hasCloudinaryConfig()) {
-      if (process.env.VERCEL) {
-        return res.status(500).json({
-          message:
-            "Cloudinary env vars missing in Vercel. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.",
-        });
-      }
+    const bucket = getUploadsBucket();
+    const safeOriginalName = req.file.originalname.replace(/\s+/g, "-");
+    const filename = `${Date.now()}-${safeOriginalName}`;
+    const uploadStream = bucket.openUploadStream(filename, {
+      contentType: req.file.mimetype,
+      metadata: { contentType: req.file.mimetype },
+    });
 
+    await new Promise((resolve, reject) => {
+      uploadStream.on("finish", resolve);
+      uploadStream.on("error", reject);
+      uploadStream.end(req.file.buffer);
+    });
+
+    const publicBaseUrl =
+      process.env.PUBLIC_BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const fileUrl = `${publicBaseUrl}/api/auth/file/${uploadStream.id.toString()}`;
+    return res.status(200).json({ imageUrl: fileUrl, fileId: uploadStream.id.toString() });
+  } catch (error) {
+    if (!process.env.VERCEL) {
+      // Local fallback keeps development working if GridFS is unavailable.
       if (!fs.existsSync(localUploadDir)) {
         fs.mkdirSync(localUploadDir, { recursive: true });
       }
@@ -53,20 +64,43 @@ router.post("/upload-image", upload.single("image"), async (req, res) => {
 
       const publicBaseUrl =
         process.env.PUBLIC_BACKEND_URL || `${req.protocol}://${req.get("host")}`;
-      return res
-        .status(200)
-        .json({ imageUrl: `${publicBaseUrl}/uploads/${filename}` });
+      return res.status(200).json({ imageUrl: `${publicBaseUrl}/uploads/${filename}` });
     }
 
-    const uploaded = await uploadToCloudinary({
-      buffer: req.file.buffer,
-      mimetype: req.file.mimetype,
-      folder: "job-portal",
-    });
-
-    res.status(200).json({ imageUrl: uploaded.url, publicId: uploaded.publicId });
-  } catch (error) {
     res.status(500).json({ message: error.message || "Failed to upload file" });
+  }
+});
+
+router.get("/file/:id", async (req, res) => {
+  try {
+    const fileId = req.params.id;
+    if (!isValidObjectId(fileId)) {
+      return res.status(400).json({ message: "Invalid file id" });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(fileId);
+    const db = mongoose.connection.db;
+    const fileDoc = await db.collection("uploads.files").findOne({ _id: objectId });
+
+    if (!fileDoc) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const contentType =
+      fileDoc.contentType || fileDoc.metadata?.contentType || "application/octet-stream";
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+
+    const bucket = getUploadsBucket();
+    const downloadStream = bucket.openDownloadStream(objectId);
+    downloadStream.on("error", () => {
+      if (!res.headersSent) {
+        res.status(404).json({ message: "File not found" });
+      }
+    });
+    downloadStream.pipe(res);
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Failed to fetch file" });
   }
 });
 
