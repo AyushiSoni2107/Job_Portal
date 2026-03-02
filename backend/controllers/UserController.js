@@ -49,25 +49,23 @@ exports.deleteResume = async (req, res) => {
         // Implementation for deleting resume
         const { resumeUrl } = req.body; //expect resumeUrl to be the URL of the resume
 
-        // Extract file name from the URL
-        const fileName = resumeUrl?.split('/')?.pop();
-
         const user = await User.findById(req.user._id);
         if(!user) return res.status(404).json({ message: "User not found" });
 
         if(user.role !== "jobseeker")
             return res.status(403).json({ message: "Only jobseekers can delete resume" });
 
-        // Construct the full file path
-        const filePath = path.join(uploadsDir, fileName);
-
-        // Check if the file exists and then delete
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath); //Delete the file
+        // Backward compatibility: remove only legacy local files under /uploads.
+        if (typeof resumeUrl === "string" && resumeUrl.includes("/uploads/")) {
+            const fileName = resumeUrl.split('/').pop();
+            const filePath = path.join(uploadsDir, fileName);
+            if (fileName && fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
         }
 
         // Set the user's resume to an empty string
-        user.resume = '',
+        user.resume = '';
         await user.save();
 
         res.json({ message: "resume deleted successfully "});
