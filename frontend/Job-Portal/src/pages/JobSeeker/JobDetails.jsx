@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { MapPin, Briefcase, Building2, Calendar, CircleDollarSign } from "lucide-react";
+import { MapPin, Briefcase, Building2, Calendar, CircleDollarSign, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 
 import axiosInstance from "../../utils/axiosInstance";
@@ -95,7 +95,11 @@ const JobDetails = () => {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="bg-white border border-slate-200 rounded-xl p-6 text-center">
           <p className="text-slate-700">Job not found.</p>
-          <Link to="/find-jobs" className="inline-block mt-3 text-blue-600 hover:underline">
+          <Link
+            to="/find-jobs"
+            className="inline-flex mt-3 items-center gap-2 px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
             Back to Browse Jobs
           </Link>
         </div>
@@ -109,7 +113,11 @@ const JobDetails = () => {
     <div className="min-h-screen">
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 py-4">
-          <Link to="/find-jobs" className="text-sm text-blue-600 hover:underline">
+          <Link
+            to="/find-jobs"
+            className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
             Back to Browse Jobs
           </Link>
           <div className="mt-3 flex items-center gap-3">

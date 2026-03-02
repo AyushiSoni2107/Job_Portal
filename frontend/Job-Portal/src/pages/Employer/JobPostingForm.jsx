@@ -36,6 +36,7 @@ const CATEGORY_OPTIONS = [
   "Product",
   "Marketing",
   "Sales",
+  "Customer-service",
   "HR",
   "Finance",
   "Operations",

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Grid3X3, List } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
@@ -15,6 +15,7 @@ const SavedJobs = () => {
   const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [removingId, setRemovingId] = useState("");
+  const [jobView, setJobView] = useState("grid");
 
   const fetchSavedJobs = async () => {
     setLoading(true);
@@ -66,17 +67,50 @@ const SavedJobs = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <section className="mb-5">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/find-jobs")}
-              className="w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 flex items-center justify-center"
-              aria-label="Back to jobs"
-              title="Back to jobs"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-3xl font-semibold text-slate-900">Saved Jobs</h1>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => navigate("/find-jobs")}
+                className="w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 flex items-center justify-center"
+                aria-label="Back to jobs"
+                title="Back to jobs"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <h1 className="text-3xl font-semibold text-slate-900">Saved Jobs</h1>
+            </div>
+
+            <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1">
+              <button
+                type="button"
+                onClick={() => setJobView("grid")}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                  jobView === "grid" ? "bg-blue-600 text-white" : "text-slate-500"
+                }`}
+                aria-label="Grid view"
+                title="Grid view"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setJobView("list")}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                  jobView === "list" ? "bg-blue-600 text-white" : "text-slate-500"
+                }`}
+                aria-label="List view"
+                title="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <p className="text-slate-600 text-sm">
+              Showing {savedJobs.length} jobs
+            </p>
           </div>
         </section>
 
@@ -89,7 +123,7 @@ const SavedJobs = () => {
             No saved jobs yet.
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className={jobView === "grid" ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : "space-y-4"}>
             {savedJobs.map((job) => (
               <JobCard
                 key={job._id}
@@ -98,6 +132,7 @@ const SavedJobs = () => {
                 isSaved
                 disableSave={removingId === job._id}
                 onToggleSave={handleRemove}
+                variant={jobView === "grid" ? "compact" : "default"}
               />
             ))}
           </div>
