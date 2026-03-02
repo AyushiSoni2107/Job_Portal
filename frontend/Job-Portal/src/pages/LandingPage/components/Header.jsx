@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, UserCircle2 } from "lucide-react";
+import { Briefcase, UserCircle2, Bookmark, ChevronDown } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { resolveMediaUrl } from "../../../utils/mediaUrl";
@@ -9,10 +9,13 @@ const Header = ({ hidePrimaryLinks = false }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
-  const handleProfileClick = () => {
+  const handleViewProfile = () => {
     if (!isAuthenticated || !user) return;
-    navigate(user.role === "employer" ? "/employer-dashboard" : "/find-jobs");
+    navigate(user.role === "employer" ? "/company-profile" : "/profile");
+    setIsProfileMenuOpen(false);
   };
 
   const handleLogoClick = () => {
@@ -23,6 +26,30 @@ const Header = ({ hidePrimaryLinks = false }) => {
     navigate("/");
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (!profileMenuRef.current?.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isProfileMenuOpen]);
 
   return (
     <motion.header 
@@ -74,28 +101,62 @@ const Header = ({ hidePrimaryLinks = false }) => {
           <div className="flex items-center space-x-3">
             {isAuthenticated && user ? (
               <>
-                <button
-                  onClick={handleProfileClick}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
-                >
-                  {user.avatar ? (
-                    <img
-                      src={resolveMediaUrl(user.avatar)}
-                      alt={user.name || "User"}
-                      className="w-8 h-8 rounded-full object-cover"
+                {user.role === "jobseeker" && (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/saved-jobs")}
+                    className="w-11 h-11 flex items-center justify-center rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                    aria-label="Saved jobs"
+                    title="Saved jobs"
+                  >
+                    <Bookmark className="w-5 h-5 text-blue-600" />
+                  </button>
+                )}
+
+                <div className="relative" ref={profileMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                    aria-haspopup="menu"
+                    aria-expanded={isProfileMenuOpen}
+                  >
+                    {user.avatar ? (
+                      <img
+                        src={resolveMediaUrl(user.avatar)}
+                        alt={user.name || "User"}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <UserCircle2 className="w-8 h-8 text-blue-600" />
+                    )}
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-slate-800 leading-none">
+                        {user.name || "User"}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1 capitalize">
+                        {user.role} Profile
+                      </p>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-500 transition-transform ${
+                        isProfileMenuOpen ? "rotate-180" : ""
+                      }`}
                     />
-                  ) : (
-                    <UserCircle2 className="w-8 h-8 text-blue-600" />
+                  </button>
+
+                  {isProfileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                      <button
+                        type="button"
+                        onClick={handleViewProfile}
+                        className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                      >
+                        View Profile
+                      </button>
+                    </div>
                   )}
-                  <div className="text-left">
-                    <p className="text-sm font-semibold text-slate-800 leading-none">
-                      {user.name || "User"}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1 capitalize">
-                      {user.role} Profile
-                    </p>
-                  </div>
-                </button>
+                </div>
 
                 <button
                   onClick={logout}

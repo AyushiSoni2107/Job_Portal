@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { ArrowLeft } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
-import SearchHeader from "../../components/SearchHeader";
 import JobCard from "../../components/JobCard";
+import Header from "../LandingPage/components/Header";
 
 const SavedJobs = () => {
   const navigate = useNavigate();
@@ -60,9 +61,25 @@ const SavedJobs = () => {
 
   return (
     <div className="min-h-screen">
-      <SearchHeader title="Saved Jobs Page" subtitle="Your saved opportunities in one place." />
+      <Header hidePrimaryLinks />
+      <div className="h-16" />
 
       <main className="max-w-6xl mx-auto px-4 py-6">
+        <section className="mb-5">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => navigate("/find-jobs")}
+              className="w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 flex items-center justify-center"
+              aria-label="Back to jobs"
+              title="Back to jobs"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-3xl font-semibold text-slate-900">Saved Jobs</h1>
+          </div>
+        </section>
+
         {loading ? (
           <div className="bg-white border border-slate-200 rounded-xl p-6 text-slate-600">
             Loading saved jobs...

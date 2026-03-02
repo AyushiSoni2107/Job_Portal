@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building2, MapPin, Briefcase, CircleDollarSign } from "lucide-react";
+import { Building2, MapPin, Briefcase, CircleDollarSign, Bookmark } from "lucide-react";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const getApplicationStatusMeta = (status) => {
@@ -131,9 +131,15 @@ const JobCard = ({
               type="button"
               onClick={() => onToggleSave?.(job)}
               disabled={disableSave}
-              className="px-3 py-2 rounded-lg border border-slate-300 text-sm hover:bg-slate-100 disabled:opacity-60"
+              aria-label={isSaved ? "Unsave job" : "Save job"}
+              title={isSaved ? "Unsave job" : "Save job"}
+              className={`w-10 h-10 rounded-lg border flex items-center justify-center disabled:opacity-60 ${
+                isSaved
+                  ? "border-blue-200 bg-blue-50 text-blue-600"
+                  : "border-slate-300 text-slate-500 hover:bg-slate-100"
+              }`}
             >
-              {isSaved ? "Unsave" : "Save Job"}
+              <Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
             </button>
           )}
 

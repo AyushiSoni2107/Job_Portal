@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Save, Trash2, X } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import uploadImage from "../../utils/uploadImage";
-import SearchHeader from "../../components/SearchHeader";
 import { resolveMediaUrl } from "../../utils/mediaUrl";
+import Header from "../LandingPage/components/Header";
 
 const UserProfile = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [resumeFileName, setResumeFileName] = useState("No file chosen");
   const [formData, setFormData] = useState({
     name: "",
     avatar: "",
@@ -36,6 +38,13 @@ const UserProfile = () => {
       avatar: user?.avatar || "",
       resume: user?.resume || "",
     });
+
+    if (user?.resume) {
+      const resumeName = decodeURIComponent(user.resume.split("/").pop() || "Resume uploaded");
+      setResumeFileName(resumeName);
+    } else {
+      setResumeFileName("No file chosen");
+    }
   }, [isAuthenticated, user?._id, user?.role]);
 
   const setField = (field, value) => {
@@ -74,6 +83,7 @@ const UserProfile = () => {
         data: { resumeUrl: formData.resume },
       });
       setField("resume", "");
+      setResumeFileName("No file chosen");
       updateUser({ resume: "" });
       toast.success("Resume removed");
     } catch (error) {
@@ -99,84 +109,132 @@ const UserProfile = () => {
     }
   };
 
+  const handleCancel = () => {
+    navigate("/find-jobs");
+  };
+
   return (
-    <div className="min-h-screen">
-      <SearchHeader
-        title="Update JobSeeker Profile Page"
-        subtitle="Update your basic profile and resume used for applications."
-      />
+    <div className="min-h-screen bg-slate-50">
+      <Header hidePrimaryLinks />
+      <div className="h-16" />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
-          <div>
-            <label className="text-sm font-medium text-slate-700">Email</label>
-            <input
-              value={user?.email || ""}
-              disabled
-              className="mt-1 w-full border border-slate-200 bg-slate-100 rounded-lg px-3 py-2 text-slate-500"
-            />
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="px-6 py-4 bg-linear-to-r from-blue-600 to-blue-700">
+            <h1 className="text-2xl font-semibold text-white">Profile</h1>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700">Full Name</label>
-            <input
-              value={formData.name}
-              onChange={(e) => setField("name", e.target.value)}
-              className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
-            />
-          </div>
+          <div className="px-6 py-6 space-y-5">
+            <div className="flex flex-wrap items-center gap-5">
+              {formData.avatar ? (
+                <img
+                  src={resolveMediaUrl(formData.avatar)}
+                  alt="Avatar"
+                  className="h-20 w-20 rounded-full object-cover border-4 border-slate-100"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-full border-4 border-slate-100 bg-slate-200 flex items-center justify-center text-slate-500 text-sm">
+                  Avatar
+                </div>
+              )}
 
-          <div>
-            <label className="text-sm font-medium text-slate-700">Avatar</label>
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-1 w-full text-sm"
-              onChange={(e) => handleAvatarUpload(e.target.files?.[0])}
-            />
-            {formData.avatar && (
-              <img src={resolveMediaUrl(formData.avatar)} alt="Avatar" className="mt-2 h-16 w-16 rounded-full object-cover" />
-            )}
-          </div>
+              <label className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium cursor-pointer hover:bg-blue-200 transition-colors">
+                Choose file
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleAvatarUpload(e.target.files?.[0])}
+                />
+              </label>
+            </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700">Resume (PDF)</label>
-            <input
-              type="file"
-              accept="application/pdf"
-              className="mt-1 w-full text-sm"
-              onChange={(e) => handleResumeUpload(e.target.files?.[0])}
-            />
-            {uploadingResume && <p className="text-sm text-slate-500 mt-1">Uploading resume...</p>}
+            <div>
+              <label className="text-sm font-medium text-slate-700">Full Name</label>
+              <input
+                value={formData.name}
+                onChange={(e) => setField("name", e.target.value)}
+                className="mt-2 w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-800"
+              />
+            </div>
 
-            {formData.resume && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                <a
-                  href={resolveMediaUrl(formData.resume)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100"
-                >
-                  View Resume
-                </a>
-                <button
-                  type="button"
-                  onClick={handleDeleteResume}
-                  className="text-sm px-3 py-1.5 rounded-lg border border-rose-300 text-rose-700 hover:bg-rose-50"
-                >
-                  Delete Resume
-                </button>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Email Address</label>
+              <input
+                value={user?.email || ""}
+                disabled
+                className="mt-2 w-full border border-slate-300 bg-slate-100 rounded-xl px-4 py-3 text-slate-500"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-slate-700">Resume</label>
+              <div className="mt-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium cursor-pointer hover:bg-blue-200 transition-colors">
+                    Choose file
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setResumeFileName(file.name);
+                        handleResumeUpload(file);
+                      }}
+                    />
+                  </label>
+                  <span className="text-sm text-slate-500">{resumeFileName}</span>
+                </div>
+                {uploadingResume && <p className="text-sm text-slate-500 mt-2">Uploading resume...</p>}
+
+                {formData.resume && (
+                  <div className="mt-3 flex items-center gap-2 text-sm">
+                    <span className="text-slate-600">Link:</span>
+                    <a
+                      href={resolveMediaUrl(formData.resume)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 underline break-all"
+                    >
+                      {resolveMediaUrl(formData.resume)}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleDeleteResume}
+                      className="text-rose-600 hover:text-rose-700"
+                      aria-label="Delete resume"
+                      title="Delete resume"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-60"
-          >
-            {loading ? "Saving..." : "Update Profile"}
-          </button>
+          <div className="px-6 pb-6">
+            <div className="border-t border-slate-300 pt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                <Save className="w-4 h-4" />
+                {loading ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
         </form>
       </main>
     </div>
