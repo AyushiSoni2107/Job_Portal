@@ -7,7 +7,6 @@ import { API_PATHS } from "../../utils/apiPaths";
 import { useAuth } from "../../context/AuthContext";
 import JobCard from "../../components/JobCard";
 import FilterContent from "../../components/FilterContent";
-import SearchHeader from "../../components/SearchHeader";
 import Header from "../LandingPage/components/Header";
 
 const JobSeekerDashboard = () => {
@@ -103,10 +102,6 @@ const JobSeekerDashboard = () => {
     <div className="min-h-screen">
       <Header hidePrimaryLinks />
       <div className="h-16" />
-      <SearchHeader
-        title="JobSeeker Dashboard Page"
-        subtitle="Browse jobs publicly, then save/apply faster after login."
-      />
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <FilterContent
