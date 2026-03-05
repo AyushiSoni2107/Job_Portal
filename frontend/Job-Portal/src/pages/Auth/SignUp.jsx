@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
@@ -21,6 +22,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const SignUp = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     avatar: null,
     role: "",
@@ -146,9 +148,11 @@ const SignUp = () => {
 
       if (token) {
         login(response.data, token);
+        const targetPath =
+          response?.data?.role === "employer" ? "/employer-dashboard" : "/find-jobs";
 
         setTimeout(() => {
-          window.location.href = "/";
+          navigate(targetPath, { replace: true });
         }, 2000);
       }
     } catch (error) {

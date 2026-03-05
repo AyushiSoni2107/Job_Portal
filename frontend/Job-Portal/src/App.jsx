@@ -21,6 +21,21 @@ import ApplicationViewer from "./pages/Employer/ApplicationViewer";
 import EmployerProfilePage from "./pages/Employer/EmployerProfilePage";
 import EditProfileDetails from "./pages/Employer/EditProfileDetails";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
+
+const HomeRoute = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+  if (user?.role === "employer") {
+    return <Navigate to="/employer-dashboard" replace />;
+  }
+  if (user?.role === "jobseeker") {
+    return <Navigate to="/find-jobs" replace />;
+  }
+
+  return <LandingPage />;
+};
 
 const App = () => {
   return (
@@ -46,7 +61,7 @@ const App = () => {
         <div className="relative z-10">
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<HomeRoute />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -79,7 +94,7 @@ const App = () => {
           className: "",
           style: {
             fontSize: "13px",
-            color: "white",
+            color: "#111827",
           },
         }}
       />

@@ -61,7 +61,34 @@ const SavedJobs = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div
+      className="relative min-h-screen bg-white overflow-hidden"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        e.currentTarget.style.setProperty("--x", `${x}%`);
+        e.currentTarget.style.setProperty("--y", `${y}%`);
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+        }}
+      />
+
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(800px circle at var(--x, 100%) var(--y, 100%), rgba(99,102,241,0.16), transparent 60%)",
+        }}
+      />
+
+      <div className="relative z-10 min-h-screen">
       <Header hidePrimaryLinks />
       <div className="h-16" />
 
@@ -138,6 +165,7 @@ const SavedJobs = () => {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 };

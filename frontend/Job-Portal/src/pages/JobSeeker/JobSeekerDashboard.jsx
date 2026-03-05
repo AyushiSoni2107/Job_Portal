@@ -1,22 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { Grid3X3, List } from "lucide-react";
+import { Bookmark, Briefcase, ChevronDown, Grid3X3, List, UserCircle2 } from "lucide-react";
 
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { useAuth } from "../../context/AuthContext";
 import JobCard from "../../components/JobCard";
 import FilterContent from "../../components/FilterContent";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 import Header from "../LandingPage/components/Header";
 
 const JobSeekerDashboard = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState("");
   const [jobView, setJobView] = useState("grid");
+  const [isMobileProfileMenuOpen, setIsMobileProfileMenuOpen] = useState(false);
+  const mobileProfileMenuRef = useRef(null);
   const defaultFilters = {
     keyword: "",
     location: "",
@@ -71,6 +74,30 @@ const JobSeekerDashboard = () => {
     fetchJobs();
   }, [isAuthenticated, user?._id, user?.role]);
 
+  useEffect(() => {
+    if (!isMobileProfileMenuOpen) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (!mobileProfileMenuRef.current?.contains(event.target)) {
+        setIsMobileProfileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isMobileProfileMenuOpen]);
+
   const handleSearch = (event) => {
     event.preventDefault();
     fetchJobs(filters);
@@ -103,7 +130,7 @@ const JobSeekerDashboard = () => {
         toast.success("Removed from saved jobs");
       } else {
         await axiosInstance.post(API_PATHS.JOBS.SAVE_JOB(job._id));
-        toast.success("Job saved");
+        toast.success("Job saved successfully!");
       }
       fetchJobs(filters);
     } catch (error) {
@@ -114,9 +141,111 @@ const JobSeekerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Header hidePrimaryLinks />
-      <div className="h-16" />
+    <div
+      className="relative min-h-screen bg-white overflow-hidden"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        e.currentTarget.style.setProperty("--x", `${x}%`);
+        e.currentTarget.style.setProperty("--y", `${y}%`);
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+        }}
+      />
+
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(800px circle at var(--x, 100%) var(--y, 100%), rgba(99,102,241,0.16), transparent 60%)",
+        }}
+      />
+
+      <div className="relative z-10 min-h-screen">
+      <div className="hidden md:block">
+        <Header hidePrimaryLinks />
+      </div>
+      <div className="hidden md:block h-16" />
+
+      <header className="md:hidden h-16 px-4 border-b border-slate-200 bg-blue-50 flex items-center justify-between">
+        <div className="min-w-0 flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-9 h-9 flex items-center justify-center text-blue-50">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <span className="text-xl font-bold text-gray-800 leading-none">DevHire</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("/saved-jobs")}
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+            aria-label="Saved jobs"
+            title="Saved jobs"
+          >
+            <Bookmark className="w-4 h-4 text-blue-600" />
+          </button>
+
+          <div className="relative" ref={mobileProfileMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsMobileProfileMenuOpen((prev) => !prev)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+              aria-haspopup="menu"
+              aria-expanded={isMobileProfileMenuOpen}
+            >
+              {user?.avatar ? (
+                <img
+                  src={resolveMediaUrl(user.avatar)}
+                  alt={user.name || "Job Seeker"}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <UserCircle2 className="w-8 h-8 text-blue-600" />
+              )}
+              <ChevronDown
+                className={`w-4 h-4 text-slate-500 transition-transform ${
+                  isMobileProfileMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isMobileProfileMenuOpen && (
+              <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigate("/profile");
+                    setIsMobileProfileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                >
+                  View Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setIsMobileProfileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <FilterContent
@@ -255,6 +384,7 @@ const JobSeekerDashboard = () => {
           </div>
         </section>
       </main>
+      </div>
     </div>
   );
 };

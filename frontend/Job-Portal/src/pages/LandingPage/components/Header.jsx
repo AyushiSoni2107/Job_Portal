@@ -11,10 +11,25 @@ const Header = ({ hidePrimaryLinks = false }) => {
   const location = useLocation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
+  const profilePath = user?.role === "employer" ? "/company-profile" : "/profile";
+  const showViewProfile = location.pathname !== profilePath;
+  const showSavedJobs =
+    location.pathname !== "/saved-jobs" && location.pathname !== "/profile";
+  const showBrowseJobs = location.pathname !== "/find-jobs";
 
   const handleViewProfile = () => {
     if (!isAuthenticated || !user) return;
-    navigate(user.role === "employer" ? "/company-profile" : "/profile");
+    navigate(profilePath);
+    setIsProfileMenuOpen(false);
+  };
+
+  const handleSavedJobs = () => {
+    navigate("/saved-jobs");
+    setIsProfileMenuOpen(false);
+  };
+
+  const handleBrowseJobs = () => {
+    navigate("/find-jobs");
     setIsProfileMenuOpen(false);
   };
 
@@ -65,10 +80,10 @@ const Header = ({ hidePrimaryLinks = false }) => {
             onClick={handleLogoClick}
             className="flex items-center space-x-3 cursor-pointer"
           >
-            <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-10 h-10 flex items-center justify-center text-blue-50">
-              <Briefcase size={28} />
+            <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-blue-50">
+              <Briefcase size={24} />
             </div>
-            <span className="text-2xl font-bold text-gray-800">DevHire</span>
+            <span className="text-xl md:text-2xl font-bold text-gray-800">DevHire</span>
           </button>
 
           {/* Navigation Links - hidden on mobile*/}
@@ -105,11 +120,11 @@ const Header = ({ hidePrimaryLinks = false }) => {
                   <button
                     type="button"
                     onClick={() => navigate("/saved-jobs")}
-                    className="w-11 h-11 flex items-center justify-center rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                    className="flex w-9 h-9 md:w-11 md:h-11 items-center justify-center rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
                     aria-label="Saved jobs"
                     title="Saved jobs"
                   >
-                    <Bookmark className="w-5 h-5 text-blue-600" />
+                    <Bookmark className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                   </button>
                 )}
 
@@ -130,7 +145,7 @@ const Header = ({ hidePrimaryLinks = false }) => {
                     ) : (
                       <UserCircle2 className="w-8 h-8 text-blue-600" />
                     )}
-                    <div className="text-left">
+                    <div className="text-left hidden sm:block">
                       <p className="text-sm font-semibold text-slate-800 leading-none">
                         {user.name || "User"}
                       </p>
@@ -147,23 +162,46 @@ const Header = ({ hidePrimaryLinks = false }) => {
 
                   {isProfileMenuOpen && (
                     <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                      {user.role === "jobseeker" && showBrowseJobs && (
+                        <button
+                          type="button"
+                          onClick={handleBrowseJobs}
+                          className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        >
+                          Browse Jobs
+                        </button>
+                      )}
+                      {user.role === "jobseeker" && showSavedJobs && (
+                        <button
+                          type="button"
+                          onClick={handleSavedJobs}
+                          className="sm:hidden w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        >
+                          Saved Jobs
+                        </button>
+                      )}
+                      {showViewProfile && (
+                        <button
+                          type="button"
+                          onClick={handleViewProfile}
+                          className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        >
+                          View Profile
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={handleViewProfile}
-                        className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        onClick={() => {
+                          logout();
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
                       >
-                        View Profile
+                        Logout
                       </button>
                     </div>
                   )}
                 </div>
-
-                <button
-                  onClick={logout}
-                  className="px-3 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-700"
-                >
-                  Logout
-                </button>
               </>
             ) : (
               <>

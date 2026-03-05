@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Briefcase,
@@ -8,6 +8,8 @@ import {
   LayoutDashboard,
   Plus,
   UserCircle2,
+  ChevronDown,
+  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -16,6 +18,7 @@ import { API_PATHS } from "../../utils/apiPaths";
 import JobPostingPreview from "./JobPostingPreview";
 import { useAuth } from "../../context/AuthContext";
 import { resolveMediaUrl } from "../../utils/mediaUrl";
+import DevHireBrand from "../../components/DevHireBrand";
 
 const defaultFormData = {
   title: "",
@@ -48,6 +51,59 @@ const JobPostingForm = () => {
   const [formData, setFormData] = useState(defaultFormData);
   const [selectedCategory, setSelectedCategory] = useState(CATEGORY_OPTIONS[0]);
   const [loading, setLoading] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isMobileProfileMenuOpen, setIsMobileProfileMenuOpen] = useState(false);
+  const [isDesktopProfileMenuOpen, setIsDesktopProfileMenuOpen] = useState(false);
+  const mobileProfileMenuRef = useRef(null);
+  const desktopProfileMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!isMobileProfileMenuOpen) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (!mobileProfileMenuRef.current?.contains(event.target)) {
+        setIsMobileProfileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isMobileProfileMenuOpen]);
+
+  useEffect(() => {
+    if (!isDesktopProfileMenuOpen) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (!desktopProfileMenuRef.current?.contains(event.target)) {
+        setIsDesktopProfileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsDesktopProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isDesktopProfileMenuOpen]);
 
   const updateField = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -86,6 +142,7 @@ const JobPostingForm = () => {
       });
       toast.success("Job posted successfully");
       setFormData(defaultFormData);
+      navigate("/employer-dashboard");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to post job");
     } finally {
@@ -94,15 +151,43 @@ const JobPostingForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2f4f7] text-slate-900 m-0 p-0">
+    <div
+      className="relative overflow-hidden"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        e.currentTarget.style.setProperty("--x", `${x}%`);
+        e.currentTarget.style.setProperty("--y", `${y}%`);
+      }}
+    >
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+        }}
+      />
+
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(800px circle at var(--x, 100%) var(--y, 100%), rgba(99,102,241,0.16), transparent 60%)",
+        }}
+      />
+
+      <div className="relative z-10 min-h-screen text-slate-900 m-0 p-0">
       <div className="w-full min-h-screen lg:grid lg:grid-cols-[220px_1fr] m-0 p-0">
         <aside className="hidden lg:flex flex-col border-r border-slate-200 bg-blue-50 min-h-screen">
           <div className="h-16 px-4 flex items-center border-b border-slate-200">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-10 h-10 flex items-center justify-center text-blue-50">
-                <Briefcase className="w-6 h-6" />
-              </div>
-              <span className="text-2xl font-bold text-gray-800 leading-none">DevHire</span>
+            <Link to="/" className="flex items-center">
+              <DevHireBrand
+                textClassName="text-2xl font-bold text-gray-800 leading-none"
+                iconWrapperClassName="w-10 h-10 rounded-lg bg-linear-to-r from-blue-500 to-purple-500 flex items-center justify-center text-blue-50"
+                iconClassName="w-6 h-6"
+              />
             </Link>
           </div>
 
@@ -148,42 +233,193 @@ const JobPostingForm = () => {
           </div>
         </aside>
 
+        {isMobileSidebarOpen && (
+          <div className="fixed inset-0 z-40 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="absolute inset-0 bg-black/40"
+              aria-label="Close menu"
+            />
+            <div className="relative w-72 h-full bg-blue-50 border-r border-slate-200 p-3">
+              <div className="h-14 px-1 flex items-center justify-between border-b border-slate-200">
+                <Link
+                  to="/"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="flex items-center"
+                >
+                  <DevHireBrand />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+                  aria-label="Close sidebar"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <nav className="px-1 pt-4 space-y-1.5">
+                <Link
+                  to="/employer-dashboard"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <Link
+                  to="/post-job"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  Post Job
+                </Link>
+                <Link
+                  to="/manage-jobs"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  Manage Jobs
+                </Link>
+                <Link
+                  to="/company-profile"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 text-sm"
+                >
+                  <Building2 className="w-4 h-4" />
+                  Company Profile
+                </Link>
+              </nav>
+            </div>
+          </div>
+        )}
+
         <main className="min-w-0">
           <header className="h-16 px-4 md:px-5 border-b border-slate-200 bg-blue-50 flex items-center justify-between">
             <div className="min-w-0">
-              <h1 className="text-lg md:text-xl leading-tight font-bold">Post New Job</h1>
-              <p className="text-xs md:text-sm text-slate-500 mt-1">Publish your job and preview it live.</p>
+              <button
+                type="button"
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="lg:hidden inline-flex items-center"
+                aria-label="Open menu"
+              >
+                <DevHireBrand />
+              </button>
+
+              <h1 className="hidden lg:block text-lg md:text-xl leading-tight font-bold">Post New Job</h1>
+              <p className="hidden lg:block text-xs md:text-sm text-slate-500 mt-1">Publish your job and preview it live.</p>
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => navigate("/company-profile")}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
-              >
-                {user?.avatar ? (
-                  <img
-                    src={resolveMediaUrl(user.avatar)}
-                    alt={user.name || "Employer"}
-                    className="w-8 h-8 rounded-full object-cover"
+              <div className="relative md:hidden" ref={mobileProfileMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileProfileMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={isMobileProfileMenuOpen}
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={resolveMediaUrl(user.avatar)}
+                      alt={user.name || "Employer"}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle2 className="w-8 h-8 text-blue-600" />
+                  )}
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform ${
+                      isMobileProfileMenuOpen ? "rotate-180" : ""
+                    }`}
                   />
-                ) : (
-                  <UserCircle2 className="w-8 h-8 text-blue-600" />
-                )}
-                <div className="text-left hidden sm:block">
-                  <p className="text-sm font-semibold text-slate-800 leading-none">
-                    {user?.name || "Employer"}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">Employer Profile</p>
-                </div>
-              </button>
+                </button>
 
-              <button
-                onClick={logout}
-                className="px-3 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-700"
-              >
-                Logout
-              </button>
+                {isMobileProfileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigate("/company-profile");
+                        setIsMobileProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                    >
+                      View Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setIsMobileProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden md:block relative" ref={desktopProfileMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDesktopProfileMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={isDesktopProfileMenuOpen}
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={resolveMediaUrl(user.avatar)}
+                      alt={user.name || "Employer"}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle2 className="w-8 h-8 text-blue-600" />
+                  )}
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-slate-800 leading-none">
+                      {user?.name || "Employer"}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">Employer Profile</p>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform ${
+                      isDesktopProfileMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isDesktopProfileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigate("/company-profile");
+                        setIsDesktopProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                    >
+                      View Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setIsDesktopProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </header>
 
@@ -337,6 +573,7 @@ const JobPostingForm = () => {
             </div>
           </section>
         </main>
+      </div>
       </div>
     </div>
   );
