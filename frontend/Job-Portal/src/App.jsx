@@ -44,8 +44,7 @@ const App = () => {
         <div
           className="fixed inset-0 pointer-events-none z-0"
           style={{
-            background:
-              "linear-gradient(180deg, rgba(248,250,252,0.95) 0%, rgba(241,245,249,0.8) 100%)",
+            background: "var(--app-bg-gradient)",
           }}
         />
 
@@ -53,7 +52,7 @@ const App = () => {
           className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+              "linear-gradient(to right, var(--app-grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--app-grid-color) 1px, transparent 1px)",
             backgroundSize: "44px 44px",
           }}
         />

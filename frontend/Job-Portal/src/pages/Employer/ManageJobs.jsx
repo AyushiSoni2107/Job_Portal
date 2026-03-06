@@ -340,6 +340,7 @@ const ManageJobs = () => {
             </div>
 
             <div className="flex items-center gap-2">
+
               <div className="relative md:hidden" ref={mobileProfileMenuRef}>
                 <button
                   type="button"
