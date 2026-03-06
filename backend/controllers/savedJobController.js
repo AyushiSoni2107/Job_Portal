@@ -1,4 +1,5 @@
 const SavedJob = require("../models/SavedJob");
+const Application = require("../models/Application");
 
 // @desc Save a job
 exports.saveJob = async (req, res) => {
@@ -46,7 +47,30 @@ exports.getMySavedJobs = async (req, res) => {
         },
       },
     );
-    res.json(savedJobs);
+
+    const jobIds = savedJobs
+      .map((item) => item?.job?._id)
+      .filter(Boolean);
+
+    const applications = await Application.find({
+      applicant: req.user._id,
+      job: { $in: jobIds },
+    }).select("job status");
+
+    const applicationStatusMap = applications.reduce((acc, app) => {
+      acc[String(app.job)] = app.status;
+      return acc;
+    }, {});
+
+    const savedJobsWithStatus = savedJobs.map((item) => {
+      const entry = item.toObject();
+      if (entry.job?._id) {
+        entry.job.applicationStatus = applicationStatusMap[String(entry.job._id)] || null;
+      }
+      return entry;
+    });
+
+    res.json(savedJobsWithStatus);
   } catch (err) {
     res
       .status(500)
