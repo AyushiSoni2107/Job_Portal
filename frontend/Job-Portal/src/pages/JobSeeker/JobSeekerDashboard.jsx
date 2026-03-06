@@ -176,75 +176,100 @@ const JobSeekerDashboard = () => {
 
       <header className="md:hidden h-16 px-4 border-b border-slate-200 bg-blue-50 flex items-center justify-between">
         <div className="min-w-0 flex items-center gap-2.5">
-          <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2.5"
+            aria-label="Go to home"
+          >
             <div className="bg-linear-to-r from-blue-500 to-purple-500 rounded-lg w-9 h-9 flex items-center justify-center text-blue-50">
               <Briefcase className="w-5 h-5" />
             </div>
             <span className="text-xl font-bold text-gray-800 leading-none">DevHire</span>
-          </div>
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
+          {isAuthenticated && user ? (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate("/saved-jobs")}
+                className="w-9 h-9 flex items-center justify-center rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                aria-label="Saved jobs"
+                title="Saved jobs"
+              >
+                <Bookmark className="w-4 h-4 text-blue-600" />
+              </button>
 
-          <button
-            type="button"
-            onClick={() => navigate("/saved-jobs")}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
-            aria-label="Saved jobs"
-            title="Saved jobs"
-          >
-            <Bookmark className="w-4 h-4 text-blue-600" />
-          </button>
-
-          <div className="relative" ref={mobileProfileMenuRef}>
-            <button
-              type="button"
-              onClick={() => setIsMobileProfileMenuOpen((prev) => !prev)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
-              aria-haspopup="menu"
-              aria-expanded={isMobileProfileMenuOpen}
-            >
-              {user?.avatar ? (
-                <img
-                  src={resolveMediaUrl(user.avatar)}
-                  alt={user.name || "Job Seeker"}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              ) : (
-                <UserCircle2 className="w-8 h-8 text-blue-600" />
-              )}
-              <ChevronDown
-                className={`w-4 h-4 text-slate-500 transition-transform ${
-                  isMobileProfileMenuOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {isMobileProfileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+              <div className="relative" ref={mobileProfileMenuRef}>
                 <button
                   type="button"
-                  onClick={() => {
-                    navigate("/profile");
-                    setIsMobileProfileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                  onClick={() => setIsMobileProfileMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={isMobileProfileMenuOpen}
                 >
-                  View Profile
+                  {user?.avatar ? (
+                    <img
+                      src={resolveMediaUrl(user.avatar)}
+                      alt={user.name || "Job Seeker"}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle2 className="w-8 h-8 text-blue-600" />
+                  )}
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform ${
+                      isMobileProfileMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    logout();
-                    setIsMobileProfileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
-                >
-                  Logout
-                </button>
+
+                {isMobileProfileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg p-1 z-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigate("/profile");
+                        setIsMobileProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                    >
+                      View Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setIsMobileProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="text-gray-700 hover:text-blue-500 font-medium"
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/signup")}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </header>
 

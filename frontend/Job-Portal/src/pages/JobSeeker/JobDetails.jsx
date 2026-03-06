@@ -29,6 +29,15 @@ const formatCategories = (categoryValue) => {
   return "General";
 };
 
+const getSalarySuffix = (salaryType) => {
+  if (salaryType === "Hourly") return "/hr";
+  if (salaryType === "Monthly") return "/month";
+  return "/year";
+};
+
+const formatSalaryRange = (job) =>
+  `${formatSalary(job.salaryMin, job.currency)} - ${formatSalary(job.salaryMax, job.currency)} (${job.currency || "INR"}) ${getSalarySuffix(job.salaryType)}`;
+
 const JobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -181,9 +190,9 @@ const JobDetails = () => {
 
         <aside className="bg-white border border-slate-200 rounded-xl p-5 h-fit">
           <h3 className="font-semibold text-slate-900">Compensation</h3>
-          <p className="text-slate-700 mt-2 inline-flex items-center gap-1">
+          <p className="text-slate-700 mt-2 inline-flex items-center gap-1 whitespace-nowrap text-sm">
             <CircleDollarSign className="w-4 h-4" />
-            {formatSalary(job.salaryMin, job.currency)} - {formatSalary(job.salaryMax, job.currency)} ({job.currency || "INR"})
+            {formatSalaryRange(job)}
           </p>
 
           <div className="mt-5">

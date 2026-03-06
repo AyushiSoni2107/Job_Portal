@@ -67,6 +67,15 @@ const formatPostedDate = (value) => {
   }).format(parsed);
 };
 
+const getSalarySuffix = (salaryType) => {
+  if (salaryType === "Hourly") return "/hr";
+  if (salaryType === "Monthly") return "/month";
+  return "/year";
+};
+
+const formatSalaryRange = (job) =>
+  `${formatSalary(job.salaryMin, job.currency)} - ${formatSalary(job.salaryMax, job.currency)} ${getSalarySuffix(job.salaryType)}`;
+
 const JobCard = ({
   job,
   showSaveControl = false,
@@ -158,8 +167,8 @@ const JobCard = ({
         )}
 
         <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
-          <p className="text-2xl font-semibold text-blue-600">
-            {formatSalary(job.salaryMin, job.currency)} - {formatSalary(job.salaryMax, job.currency)}
+          <p className="text-lg font-semibold text-blue-600 whitespace-nowrap">
+            {formatSalaryRange(job)}
           </p>
 
           {applicationStatus ? (
@@ -237,7 +246,7 @@ const JobCard = ({
         </span>
         <span className="inline-flex items-center gap-1">
           <CircleDollarSign className="w-4 h-4" />
-          {formatSalary(job.salaryMin, job.currency)} - {formatSalary(job.salaryMax, job.currency)}
+          <span className="whitespace-nowrap text-[13px]">{formatSalaryRange(job)}</span>
         </span>
       </div>
 

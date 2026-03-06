@@ -161,6 +161,7 @@ const ManageJobs = () => {
         location: editingJob.location,
         category: editingJob.category,
         type: editingJob.type,
+        salaryType: editingJob.salaryType || "Yearly",
         currency: editingJob.currency || "INR",
         salaryMin: Number(editingJob.salaryMin || 0),
         salaryMax: Number(editingJob.salaryMax || 0),
@@ -616,7 +617,7 @@ const ManageJobs = () => {
                 placeholder="Categories (comma separated)"
               />
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               <select
                 value={editingJob.type}
                 onChange={(e) => setEditingJob((prev) => ({ ...prev, type: e.target.value }))}
@@ -627,6 +628,15 @@ const ManageJobs = () => {
                 <option>Part-Time</option>
                 <option>Internship</option>
                 <option>Contract</option>
+              </select>
+              <select
+                value={editingJob.salaryType || "Yearly"}
+                onChange={(e) => setEditingJob((prev) => ({ ...prev, salaryType: e.target.value }))}
+                className="border border-slate-300 rounded-lg px-3 py-2"
+              >
+                <option>Hourly</option>
+                <option>Monthly</option>
+                <option>Yearly</option>
               </select>
               <select
                 value={editingJob.currency || "INR"}

@@ -22,6 +22,11 @@ const jobSchema = new mongoose.Schema(
 
     salaryMin: { type: Number },
     salaryMax: { type: Number },
+    salaryType: {
+      type: String,
+      enum: ["Hourly", "Monthly", "Yearly"],
+      default: "Yearly",
+    },
     currency: {
       type: String,
       enum: ["INR", "USD", "EUR", "GBP", "AED"],

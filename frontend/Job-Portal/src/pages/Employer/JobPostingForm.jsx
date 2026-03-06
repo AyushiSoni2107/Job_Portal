@@ -27,6 +27,7 @@ const defaultFormData = {
   location: "",
   category: [],
   type: "Full-Time",
+  salaryType: "Yearly",
   currency: "INR",
   salaryMin: "",
   salaryMax: "",
@@ -529,6 +530,18 @@ const JobPostingForm = () => {
                     </select>
                   </div>
                   <div>
+                    <label className="text-sm font-medium text-slate-700">Salary Type</label>
+                    <select
+                      value={formData.salaryType}
+                      onChange={(e) => updateField("salaryType", e.target.value)}
+                      className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
+                    >
+                      <option>Hourly</option>
+                      <option>Monthly</option>
+                      <option>Yearly</option>
+                    </select>
+                  </div>
+                  <div>
                     <label className="text-sm font-medium text-slate-700">Salary Min</label>
                     <input
                       type="number"
@@ -537,6 +550,9 @@ const JobPostingForm = () => {
                       className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium text-slate-700">Salary Max</label>
                     <input
@@ -546,19 +562,18 @@ const JobPostingForm = () => {
                       className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-slate-700">Currency</label>
-                  <select
-                    value={formData.currency}
-                    onChange={(e) => updateField("currency", e.target.value)}
-                    className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
-                  >
-                    <option value="INR">INR</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                  </select>
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">Currency</label>
+                    <select
+                      value={formData.currency}
+                      onChange={(e) => updateField("currency", e.target.value)}
+                      className="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2"
+                    >
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                    </select>
+                  </div>
                 </div>
 
                 <button

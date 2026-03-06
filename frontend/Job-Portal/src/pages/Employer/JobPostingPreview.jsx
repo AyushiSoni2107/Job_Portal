@@ -8,8 +8,15 @@ const formatCurrency = (value, currency = "INR") => {
   }).format(amount);
 };
 
+const getSalaryTypeLabel = (salaryType) => {
+  if (salaryType === "Hourly") return "per hour";
+  if (salaryType === "Monthly") return "per month";
+  return "per year";
+};
+
 const JobPostingPreview = ({ values }) => {
   const currency = values?.currency || "INR";
+  const salaryType = values?.salaryType || "Yearly";
   const salaryMin = formatCurrency(values?.salaryMin, currency);
   const salaryMax = formatCurrency(values?.salaryMax, currency);
   const companyName = values?.companyName?.trim() || "Your Company";
@@ -46,16 +53,19 @@ const JobPostingPreview = ({ values }) => {
               {categories.length > 0 ? categories.join(", ") : "General"}
             </span>
             <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">{currency}</span>
+            <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700">{salaryType}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-lg border border-slate-200 bg-white p-3">
               <p className="text-xs text-slate-500 uppercase tracking-wide">Salary Min</p>
-              <p className="text-slate-900 font-semibold mt-1">{salaryMin}</p>
+              <p className="text-slate-900 font-semibold mt-1 whitespace-nowrap text-sm">{salaryMin}</p>
+              <p className="text-xs text-slate-500 mt-1">{getSalaryTypeLabel(salaryType)}</p>
             </div>
             <div className="rounded-lg border border-slate-200 bg-white p-3">
               <p className="text-xs text-slate-500 uppercase tracking-wide">Salary Max</p>
-              <p className="text-slate-900 font-semibold mt-1">{salaryMax}</p>
+              <p className="text-slate-900 font-semibold mt-1 whitespace-nowrap text-sm">{salaryMax}</p>
+              <p className="text-xs text-slate-500 mt-1">{getSalaryTypeLabel(salaryType)}</p>
             </div>
           </div>
 
