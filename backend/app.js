@@ -9,6 +9,9 @@ const applicationRoutes = require("./routes/applicationRoutes");
 const savedJobsRoutes = require("./routes/SavedJobsRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 
+require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
+
+
 const app = express();
 const uploadsDir = process.env.VERCEL
   ? path.join("/tmp", "uploads")

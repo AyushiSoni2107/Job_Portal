@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+// require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
+
 let cachedConnection = null;
 let cachedPromise = null;
 
@@ -15,7 +17,7 @@ const connectDB = async () => {
         return cachedConnection;
       })
       .catch((err) => {
-        cachedPromise = null;
+        cachedPromise = null;   
         throw err;
       });
   }
