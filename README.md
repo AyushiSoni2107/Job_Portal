@@ -1,4 +1,4 @@
-# DevHire - Job Portal
+# DevHire :- Job-Portal
 
 A full-stack hiring platform where:
 - job seekers discover roles, save jobs, and apply in one click
